@@ -1,3 +1,5 @@
+<img width="1522" height="1080" alt="fallacies" src="https://github.com/user-attachments/assets/3009e7bf-9e12-4032-a24a-af35d64bb89a" />
+
 # 4chan_memeflag_hider_v3
 Greasemonkey/Violentmonkey/Tampermonkey/*Monkey module for hiding memeflags on 4chan.org/pol/
 
