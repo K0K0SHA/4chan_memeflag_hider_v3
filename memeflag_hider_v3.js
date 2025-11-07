@@ -16,17 +16,33 @@
 
   const HIDE_MEMEFLAG_THREADS = true;
   const HIDE_MEMEFLAG_REPLIES = true;
+  const AUTO_REFRESH_ON_FIRST_OPEN = true;
+  const AUTO_REFRESH_DELAY_MS = 500;
 
-  // GPT generated isMemeflag(post)
-  /** Utility: check if a post has a memeflag **/
+  /** --- Auto-refresh logic --- **/
+  if (AUTO_REFRESH_ON_FIRST_OPEN && window.location.href.includes("/thread/")) {
+    const threadID = window.location.pathname.match(/thread\/(\d+)/)?.[1];
+    if (threadID) {
+      const key = "memeflag_refreshed_" + threadID;
+      // Only refresh once per session
+      if (!sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, "1");
+        console.log(`[MemeflagHider] First time opening thread ${threadID}, refreshing in ${AUTO_REFRESH_DELAY_MS} ms...`);
+        setTimeout(() => {
+          window.location.reload();
+        }, AUTO_REFRESH_DELAY_MS);
+      }
+    }
+  }
+
+  /** --- Utility: check if a post has a memeflag --- **/
   function isMemeflag(post) {
     const hasMemeflag = post.getElementsByClassName("bfl").length > 0;
     const hasFlag = post.getElementsByClassName("flag").length > 0;
-    // Memeflag posts are usually those with .bfl (or lacking .flag)
     return hasMemeflag || !hasFlag;
   }
 
-  /** Hide a post safely **/
+  /** --- Hide a post safely --- **/
   function hidePost(post) {
     const id = post.id?.substring(2);
     if (!id) return;
@@ -37,11 +53,15 @@
     }
   }
 
-  /** Hide all memeflags currently on page **/
+  /** --- Hide all memeflags currently on page --- **/
   function hideExisting() {
     let count = 0;
 
-    if (HIDE_MEMEFLAG_THREADS && window.location.href.includes("/pol/") && !window.location.href.includes("/thread/")) {
+    if (
+      HIDE_MEMEFLAG_THREADS &&
+      window.location.href.includes("/pol/") &&
+      !window.location.href.includes("/thread/")
+    ) {
       const threads = document.getElementsByClassName("postContainer opContainer");
       for (const post of threads) {
         if (isMemeflag(post)) {
@@ -64,7 +84,7 @@
     displayCounter(count);
   }
 
-  /** Display hidden count **/
+  /** --- Display hidden count --- **/
   function displayCounter(count) {
     const counter = document.createElement("div");
     counter.className = "thread-stats";
@@ -72,7 +92,7 @@
     document.querySelector(".navLinks.desktop")?.appendChild(counter);
   }
 
-  /** Observe new posts dynamically **/
+  /** --- Observe new posts dynamically --- **/
   function observeNewPosts() {
     const thread = document.querySelector("#thread-container, #threads, body");
     if (!thread) return;
@@ -84,7 +104,6 @@
           if (node.classList?.contains("postContainer")) {
             if (isMemeflag(node)) hidePost(node);
           }
-          // Some new posts may be nested deeper
           const nested = node.querySelectorAll?.(".postContainer");
           nested?.forEach((post) => {
             if (isMemeflag(post)) hidePost(post);
@@ -96,7 +115,7 @@
     observer.observe(thread, { childList: true, subtree: true });
   }
 
-  /** Handle catalog view **/
+  /** --- Handle catalog view --- **/
   function hideInCatalog() {
     if (!window.location.href.includes("/catalog")) return;
 
@@ -112,12 +131,11 @@
     document.querySelector(".navLinks")?.appendChild(msg);
   }
 
-  /** Entry point **/
+  /** --- Entry point --- **/
   if (window.location.href.includes("/catalog")) {
     hideInCatalog();
   } else {
     hideExisting();
-    observeNewPosts(); // ← NEW: dynamically hides new replies
+    observeNewPosts(); // ← Dynamic memeflag hiding
   }
 })();
-
