@@ -12,5 +12,9 @@ Are you tired of memeflags on pol? Simply post the code in this repository's .js
 This project was originally forked from memeflag hider v2 which can be found here: https://greasyfork.org/en/scripts/438016-memeflag-hider-v2/feedback
 The memeflag hider v2 works fine, except it requires the user to refresh the page in order to hide new memeflag replies. In other words, you have to keep refreshing the page to hide the new memeflag schizoposts. So, I upgraded the v2 code with some help from GPT-5 in order to check each new post for a memeflag. 
 
+# ISSUES
+--Memeflags aren't hidden on certain newtabs, until page is refreshed. 
+I should implement some code that refreshes any newly opened thread 0.5s after it's opened
+
 # TODO
 Create GreasyFork repo and link it here
